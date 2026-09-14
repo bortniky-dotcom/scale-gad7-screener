@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GAD-7</title>
+  <meta name="description" content="GAD-7 anxiety screener. Initials only. Results go to the ReadyWell office." />
+  <meta property="og:title" content="GAD-7" />
+  <meta property="og:description" content="Generalized Anxiety Disorder-7. ReadyWell clinic screener." />
+  <meta property="og:type" content="website" />
+  <link rel="stylesheet" href="form.css" />
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <img src="yb-crest.png" width="56" height="78" alt="YB crest" />
+      <div>
+        <div class="clinic">ReadyWell · Yuriy Bortnik, PMHNP</div>
+        <h1>GAD-7</h1>
+        <p class="sub">Generalized Anxiety Disorder-7 · not a diagnosis</p>
+      </div>
+    </div>
+  </header>
+  <main>
+    <div class="card note">
+      Over the last 2 weeks, how often have you been bothered by the following problems?
+    </div>
+    <div class="card note crisis-stand">
+      If you are in crisis, call or text 988. If you are in immediate danger, call 911 or go to the nearest emergency room.
+    </div>
+    <form id="ocs" autocomplete="on">
+      <div class="card">
+        <h2>About you</h2>
+        <p class="hint">Initials required. Example: Y.B.</p>
+        <div class="grid-2">
+          <div>
+            <label class="field" for="name">Initials</label>
+            <input id="name" name="name" type="text" maxlength="12" placeholder="e.g. Y.B." required />
+          </div>
+          <div>
+            <label class="field" for="date">Today’s date</label>
+            <input id="date" name="date" type="date" />
+          </div>
+          <div>
+            <label class="field" for="age">Age (optional)</label>
+            <input id="age" name="age" type="number" min="5" max="120" />
+          </div>
+          <div>
+            <label class="field" for="visit">Next visit date</label>
+            <input id="visit" name="visit" type="date" />
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <h2>GAD-7 items</h2>
+        <p class="hint">0 = not at all. 1 = several days. 2 = more than half the days. 3 = nearly every day.</p>
+        <div id="partA"></div>
+      </div>
+      <div class="card">
+        <h2>Difficulty</h2>
+        <p class="hint">This item is not added to the 0–21 total.</p>
+        <div class="item">
+          <p><span class="code">8.</span> If you checked off any problems, how difficult have these problems made it for you to do your work, take care of things at home, or get along with other people?</p>
+          <div class="scale four" id="diffScale"></div>
+        </div>
+      </div>
+      <div class="actions sticky">
+        <button type="button" id="scoreBtn">Score and Send</button>
+        <button type="button" class="secondary" id="copyBtn">Copy summary</button>
+        <button type="button" class="secondary" id="printBtn">Print / save as PDF</button>
+      </div>
+      <p class="hint">Scores the form, sends a copy to office@readywellpsych.com, and opens a Gmail draft.</p>
+    </form>
+    <div class="card" id="results">
+      <h2>Your results</h2>
+      <div id="resultBody"></div>
+      <div id="itemList"></div>
+      <label class="field" for="summaryBox">Summary. Copy this if Gmail does not open</label>
+      <textarea id="summaryBox" readonly></textarea>
+      <p id="copyStatus"></p>
+      <p class="hint" style="margin-top:.4rem">GAD-7 is a severity screen. It is not a diagnosis. A clinician still has to interview you.</p>
+    </div>
+  </main>
+  <footer>
+    GAD-7 · ReadyWell office intake · not a diagnosis<br />
+    Developed by Drs. Robert L. Spitzer, Janet B.W. Williams, Kurt Kroenke and colleagues, with an educational grant from Pfizer Inc. No permission required to reproduce, translate, display or distribute.
+  </footer>
+  <script src="yb-crest.js"></script>
+  <script src="form.js"></script>
+</body>
+</html>
