@@ -36,10 +36,20 @@ ITEMS.forEach((text, i) => {
 
 const diffScale = document.getElementById("diffScale");
 diffScale.innerHTML = [0,1,2,3].map(v =>
-  `<label><input type="radio" name="DIFF" value="${v}" required> ${v}<small>${DIFF[v]}</small></label>`
+  `<label><input type="radio" name="DIFF" value="${v}"> ${v}<small>${DIFF[v]}</small></label>`
 ).join("");
 
 document.getElementById("date").valueAsDate = new Date();
+
+function clearDifficulty() {
+  document.querySelectorAll('input[name="DIFF"]').forEach((el) => {
+    el.checked = false;
+    el.removeAttribute("required");
+    el.required = false;
+  });
+}
+clearDifficulty();
+window.addEventListener("pageshow", clearDifficulty);
 
 function val(name) {
   const el = document.querySelector(`[name="${name}"]:checked`);
@@ -62,7 +72,9 @@ function bandClass(total) {
   return "neg";
 }
 
-function score() {
+function score(opts) {
+  opts = opts || {};
+  const send = !!opts.send;
   const initialsCheck = document.getElementById("name").value.trim();
   if (!initialsCheck) {
     alert("Please enter initials.");
@@ -75,10 +87,7 @@ function score() {
     return;
   }
   const difficulty = num("DIFF");
-  if (difficulty === null) {
-    alert("Please answer the difficulty item.");
-    return;
-  }
+  const diffLabel = difficulty === null ? "n/a" : DIFF[difficulty];
   const total = ratings.reduce((s, n) => s + n, 0);
   const name = document.getElementById("name").value.trim();
   const date = document.getElementById("date").value || "";
@@ -93,7 +102,7 @@ function score() {
     <div class="score-row"><span>Next visit</span><strong>${visit}</strong></div>
     <div class="score-row"><span>Total (0–21)</span><strong>${total} / 21</strong></div>
     <div class="score-row"><span>Band</span><strong><span class="pill ${bandClass(total)}">${band}</span></strong></div>
-    <div class="score-row"><span>Difficulty</span><strong>${DIFF[difficulty]}</strong></div>
+    <div class="score-row"><span>Difficulty</span><strong>${diffLabel}</strong></div>
   `;
   document.getElementById("resultBody").innerHTML = html;
 
@@ -101,7 +110,7 @@ function score() {
     const n = ratings[i];
     const code = String(i + 1).padStart(2, "0");
     return `<div class="item"><p><span class="code">${code}.</span> ${stem}</p><p class="ans">Answer: ${n} · ${SCALE[n]}</p></div>`;
-  }).join("") + `<div class="item"><p><span class="code">08.</span> Difficulty</p><p class="ans">Answer: ${DIFF[difficulty]}</p></div>`;
+  }).join("") + `<div class="item"><p><span class="code">08.</span> Difficulty</p><p class="ans">Answer: ${diffLabel}</p></div>`;
   document.getElementById("itemList").innerHTML = "<p class=\"hint\">Every item and the rating selected</p>" + itemHtml;
 
   const lines = [
@@ -112,7 +121,7 @@ function score() {
     "Next visit: " + visit,
     "Score: " + total + " / 21",
     "Band: " + band,
-    "Difficulty: " + DIFF[difficulty],
+    "Difficulty: " + diffLabel,
     "",
     "Item, rating, label"
   ];
@@ -124,14 +133,14 @@ function score() {
   });
   lines.push("");
   lines.push("8. If you checked off any problems, how difficult have these problems made it for you to do your work, take care of things at home, or get along with other people?");
-  lines.push("Answer: " + DIFF[difficulty]);
+  lines.push("Answer: " + diffLabel);
   window._ocsSummary = lines.join("\n");
-  window._meta = { name, date, visit, age, total, band, difficulty };
+  window._meta = { name, date, visit, age, total, band, difficulty, diffLabel };
   const box = document.getElementById("summaryBox");
   if (box) box.value = window._ocsSummary;
   document.getElementById("results").classList.add("show");
   document.getElementById("results").scrollIntoView({ behavior: "smooth" });
-  sendOffice(false);
+  if (send) sendOffice(true);
   return true;
 }
 
@@ -153,6 +162,7 @@ function sendOffice(force) {
       visit: m.visit || "",
       score: (m.total != null ? m.total + " / 21" : ""),
       band: m.band || "",
+      difficulty: m.diffLabel || "n/a",
       message: window._ocsSummary
     })
   }).then(r => r.json()).then(d => {
@@ -167,11 +177,9 @@ function sendOffice(force) {
 }
 
 function copySummary() {
+  if (!score({ send: false })) return false;
   const box = document.getElementById("summaryBox");
   const status = document.getElementById("copyStatus");
-  if (!window._ocsSummary) {
-    if (!score()) return false;
-  }
   box.value = window._ocsSummary;
   box.focus();
   box.select();
@@ -192,7 +200,6 @@ function copySummary() {
 
 function openGmail() {
   if (!window._ocsSummary) return;
-  copySummary();
   const subject = "FOR REVIEW : GAD-7 screener";
   let body = window._ocsSummary;
   if (body.length > 1500) {
@@ -212,13 +219,13 @@ function openGmail() {
 }
 
 function scoreAndSend() {
-  if (!score()) return;
+  if (!score({ send: true })) return;
   openGmail();
 }
 
 document.getElementById("scoreBtn").onclick = scoreAndSend;
 document.getElementById("copyBtn").onclick = copySummary;
 document.getElementById("printBtn").onclick = () => {
-  if (!window._ocsSummary) score();
+  if (!score({ send: false })) return;
   window.print();
 };
