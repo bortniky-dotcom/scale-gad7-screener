@@ -18,6 +18,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Wire official YB tab icon
+        run: python3 -c "from pathlib import Path; p=Path('index.html'); t=p.read_text(); s='<link rel=\"icon\" type=\"image/svg+xml\" href=\"https://yuriybortnik.com/favicon.svg\">\n<link rel=\"icon\" type=\"image/png\" sizes=\"32x32\" href=\"https://yuriybortnik.com/favicon-32.png\">\n<link rel=\"apple-touch-icon\" href=\"https://yuriybortnik.com/apple-touch-icon.png\">\n'; p.write_text(t if 'yuriybortnik.com/favicon' in t else t.replace('<head>','<head>\n'+s,1))"
+      - name: Wire official YB crest
+        run: python3 -c "from pathlib import Path; p=Path('index.html'); t=p.read_text(); s='<script src=\"yb-crest.js\"></script>'; p.write_text(t if 'yb-crest.js' in t else t.replace('</body>', s+'</body>', 1))"
       - uses: actions/configure-pages@v5
         with:
           enablement: true
